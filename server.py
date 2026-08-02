@@ -69,7 +69,7 @@ async def create_contact(payload: ContactMessageCreate):
 
         raise HTTPException(
             status_code=500,
-            detail="Unable to send message. Please try again later.",
+            detail=str(exc),
         )
 
 @api_router.get("/github/overview")
