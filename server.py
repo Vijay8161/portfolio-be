@@ -74,31 +74,15 @@ async def create_contact(payload: ContactMessageCreate):
 
 @api_router.get("/github/overview")
 async def github_overview():
-    headers = {
-        "User-Agent": "portfolio-app",
-        "Accept": "application/vnd.github+json",
-    }
-
-    try:
-        async with httpx.AsyncClient(timeout=15.0, headers=headers) as http:
-            user_r = await http.get(f"https://api.github.com/users/{GITHUB_USER}")
-
-            return {
-                "status": user_r.status_code,
-                "text": user_r.text,
-            }
-
-    except Exception as exc:
-        logger.exception("GitHub test failed")
-        raise HTTPException(status_code=500, detail=str(exc))
-
-@api_router.get("/github/overview/main")
-async def github_overview():
     now = time.time()
     if _gh_cache["data"] and now - _gh_cache["ts"] < GH_CACHE_TTL:
         return _gh_cache["data"]
 
-    headers = {"User-Agent": "portfolio-app", "Accept": "application/vnd.github+json"}
+    headers={
+               "User-Agent": "portfolio-app", 
+               "Accept": "application/vnd.github+json",
+               "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+            }
     try:
         async with httpx.AsyncClient(timeout=15.0, headers=headers) as http:
             user_r, repos_r = await asyncio.gather(
