@@ -136,16 +136,13 @@ async def github_overview():
         raise HTTPException(status_code=502, detail="github_unavailable")
 
 
-cors_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "").split(",")
-    if origin.strip()
-]
+
+app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
     allow_credentials=True,
+    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
