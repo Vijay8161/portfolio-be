@@ -1,24 +1,23 @@
 import os
-import smtplib
-from email.message import EmailMessage
+import requests
 
-
-SMTP_EMAIL = os.environ["SMTP_EMAIL"]
-SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+RESEND_API_KEY = os.environ["RESEND_API_KEY"]
 RECEIVER_EMAIL = os.environ["RECEIVER_EMAIL"]
 
 
 def send_contact_email(name: str, email: str, message: str):
-    msg = EmailMessage()
-
-    msg["Subject"] = f"New Portfolio Contact from {name}"
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = RECEIVER_EMAIL
-
-    msg.set_content(
-        f"""
-You have received a new message from your portfolio website.
-
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "from": "Portfolio Contact <onboarding@resend.dev>",
+            "to": [RECEIVER_EMAIL],
+            "subject": f"New Portfolio Contact from {name}",
+            "reply_to": email,
+            "text": f"""
 Name:
 {name}
 
@@ -27,9 +26,9 @@ Email:
 
 Message:
 {message}
-"""
+""",
+        },
+        timeout=15,
     )
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(SMTP_EMAIL, SMTP_PASSWORD)
-        smtp.send_message(msg)
+    response.raise_for_status()
