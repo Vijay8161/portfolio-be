@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: portfolio-backend
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GITHUB_USERNAME
+        value: Vijay8161
+      - key: CORS_ORIGINS
+        value: "*"
